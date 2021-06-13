@@ -2,8 +2,15 @@
 # coding: utf-8
 
 
+# python standard library imports
 from datetime import date, datetime
 from typing import List
+
+
+# outside libraries imports
+
+
+# local imports
 
 
 class Player:
@@ -33,6 +40,9 @@ class Player:
             "gender": self.gender,
             "rank": self.rank,
         }
+
+    def __repr__(self):
+        return f"{self.first_name} {self.last_name} - rang : {self.rank}"
 
 
 class Match:

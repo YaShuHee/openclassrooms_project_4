@@ -2,6 +2,13 @@
 # coding: utf-8
 
 
+# python standard library imports
+
+
+# outside libraries imports
+
+
+# local imports
 # from view import TournamentAdminView
 # from controllers import UnstoppableTournamentController
 # from controllers import TournamentController

@@ -17,38 +17,62 @@ from inspect import isfunction
 
 
 # local imports
-# from views import UnstoppableTournamentAdminView
-# from controllers import UnstoppableTournamentController
-# from models import Player, Tournament, Round, Match
 from models import Player
+from controllers import UnstoppableTournamentController
+
+
+# Class to implement tests -------------------------------------------------------------------------------------------
+class PassTestView:
+    """A class used to test interfaces bypassing users input. """
+    def __init__(self):
+        for method, return_ in {
+            "first_name": "TiMoThé",
+            "last_name": "  GélibeRt ",
+            "birth_date": "09 07 1996",
+            "gender": "homMe",
+            "rank": "42",
+        }.items():
+            setattr(self, f"enter_{method}", lambda r=return_: r)
 
 
 # Models testing functions -------------------------------------------------------------------------------------------
-def test_player_method_get_information():
+def test_player_get_information():
     """ A function to test if Player model returns information the way it is supposed to. """
     given_kwargs = {
         "first_name": "Timothé",
         "last_name": "Gélibert",
         "birth_date": date(year=1996, month=7, day=9),
-        "gender": "homme",
+        "gender": "Homme",
         "rank": 42,
     }
     expected_result = {
         "first_name": "Timothé",
         "last_name": "Gélibert",
         "birth_date": date(year=1996, month=7, day=9),
-        "gender": "homme",
+        "gender": "Homme",
         "rank": 42,
     }
     test_player = Player(**given_kwargs)
-    test_results = test_player.get_informations()
+    test_results = test_player.get_information()
     return test_results == expected_result
 
 
-# Models testing functions -------------------------------------------------------------------------------------------
+# Controllers testing functions --------------------------------------------------------------------------------------
+def test_controller_add_a_new_player():
+    expected_result = {
+        "first_name": "Timothé",
+        "last_name": "Gélibert",
+        "birth_date": date(year=1996, month=7, day=9),
+        "gender": "Homme",
+        "rank": 42,
+    }
+    view = PassTestView()
+    controller = UnstoppableTournamentController(view)
+    controller.add_a_new_player()
+    return controller.players[0].get_information() == expected_result
 
 
-# Models testing functions -------------------------------------------------------------------------------------------
+# Views testing functions --------------------------------------------------------------------------------------------
 
 
 # Tests execution ----------------------------------------------------------------------------------------------------
