@@ -102,6 +102,17 @@ class Tournament:
         else:
             self.ending_date = ending_date
 
+    def get_information(self):
+        return {
+            "name": self.name,
+            "place": self.place,
+            "beginning_date": self.beginning_date,
+            "ending_date": self.ending_date,
+            "time_control": self.time_control,
+            "description": self.description,
+            "number_of_rounds": self.number_of_rounds,
+        }
+
 
 if __name__ == '__main__':
     pass

@@ -12,16 +12,18 @@ from datetime import date
 
 # local imports
 # from models import Tournament, Round, Match
-from models import Player
+from models import Player, Tournament
 
 
 class UnstoppableTournamentController:
     """ A controller for a basic unstoppable 4 round tournament. """
-
-    def __init__(self, view):
-        self.view = view
+    def __init__(self, player_view, tournament_view, number_of_players: int = 8):
+        self.player_view = player_view
+        self.tournament_view = tournament_view
         self.players = []
         self.tournament = None
+        # self.players = [self.add_new_player() for n in range(number_of_players)]
+        # self.tournament = self.create_tournament()
 
     def run(self):
         while self.tournament.active_round < self.tournament.number_of_rounds:
@@ -40,7 +42,71 @@ class UnstoppableTournamentController:
     def get_round_scores(self):
         pass
 
-    def add_a_new_player(self):
+    def create_tournament(self):
+        tournament = {
+            "name": None,
+            "place": None,
+            "beginning_date": None,
+            "ending_date": None,
+            "time_control": None,
+            "number_of_rounds": None,
+            "description": None,
+        }
+        for data in tournament:
+            while tournament[data] is None:
+                tournament[data] = self.__getattribute__(f"get_tournament_{data}")()
+            # if data == False, the default value will be used by 'Tournament' class
+        tournament = {key: value for key, value in tournament.items() if value is not False}
+        return Tournament(**tournament)
+
+    @staticmethod
+    def _treat_french_date_string(date_str: str):
+        try:
+            treated_date = date(*(int(time_unit) for time_unit in reversed(date_str.split(" "))))
+        except (ValueError, TypeError):
+            treated_date = None
+        return treated_date
+
+    def get_tournament_name(self):
+        name = self.tournament_view.enter_name()
+        return name
+
+    def get_tournament_place(self):
+        place = self.tournament_view.enter_place()
+        return place
+
+    def get_tournament_beginning_date(self):
+        beginning_date = self.tournament_view.enter_beginning_date()
+        return self._treat_french_date_string(beginning_date)
+
+    def get_tournament_ending_date(self):
+        ending_date = self.tournament_view.enter_ending_date()
+        if ending_date == "":
+            return False
+        else:
+            return self._treat_french_date_string(ending_date)
+
+    def get_tournament_time_control(self):
+        time_control = self.tournament_view.enter_time_control().capitalize()
+        if time_control in ("Bullet", "Blitz", "Coup rapide"):
+            return time_control
+        else:
+            return None
+
+    def get_tournament_number_of_rounds(self):
+        number_of_rounds = self.tournament_view.enter_number_of_rounds()
+        if number_of_rounds == "":
+            return 4
+        elif number_of_rounds.isdecimal():
+            return int(number_of_rounds)
+        else:
+            return None
+
+    def get_tournament_description(self):
+        description = self.tournament_view.enter_description()
+        return description
+
+    def add_new_player(self):
         player = {
             "first_name": None,
             "last_name": None,
@@ -50,16 +116,16 @@ class UnstoppableTournamentController:
         }
         for data in player:
             while player[data] is None:
-                player[data] = self.__getattribute__(f"get_{data}")()
-        self.players.append(Player(**player))
+                player[data] = self.__getattribute__(f"get_player_{data}")()
+        return Player(**player)
 
     @staticmethod
-    def _name_is_valid(name):
+    def _player_name_is_valid(name):
         """ Check if a string only contains alphabetic caracters, <->, <'> or <space> symbols. """
         return name.replace(" ", "").replace("-", "").replace("'", "").isalpha()
 
     @staticmethod
-    def _format_name(name_to_format):
+    def _format_player_name(name_to_format):
         """ """
         name = ""
         split_name = re_split(r"([\-]+|[ ]+|[']+)", name_to_format)
@@ -76,27 +142,27 @@ class UnstoppableTournamentController:
             name = name[0:-1]
         return name
 
-    def _treat_name(self, name):
-        if self._name_is_valid(name):
-            return self._format_name(name)
+    def _treat_player_name(self, name):
+        if self._player_name_is_valid(name):
+            return self._format_player_name(name)
         else:
             return None
 
-    def get_first_name(self):
-        name = self.view.enter_first_name()
-        return self._treat_name(name)
+    def get_player_first_name(self):
+        name = self.player_view.enter_first_name()
+        return self._treat_player_name(name)
 
-    def get_last_name(self):
-        name = self.view.enter_last_name()
-        return self._treat_name(name)
+    def get_player_last_name(self):
+        name = self.player_view.enter_last_name()
+        return self._treat_player_name(name)
 
     @staticmethod
     def _format_date(date_: str):
         split_date = date_.split(" ")
         return (int(time_measure) for time_measure in reversed(split_date))
 
-    def get_birth_date(self):
-        birth_date_str = self.view.enter_birth_date()
+    def get_player_birth_date(self):
+        birth_date_str = self.player_view.enter_birth_date()
         if birth_date_str.replace(" ", "").isdecimal():
             birth_date_tuple = self._format_date(birth_date_str)
             try:
@@ -109,15 +175,15 @@ class UnstoppableTournamentController:
             birth_date = None
         return birth_date
 
-    def get_gender(self):
-        gender = self.view.enter_gender().capitalize()
+    def get_player_gender(self):
+        gender = self.player_view.enter_gender().capitalize()
         if gender in ("Homme", "Femme", "Autre"):
             return gender
         else:
             return None
 
-    def get_rank(self):
-        rank = self.view.enter_rank()
+    def get_player_rank(self):
+        rank = self.player_view.enter_rank()
         if rank.isdecimal():
             return int(rank)
         else:

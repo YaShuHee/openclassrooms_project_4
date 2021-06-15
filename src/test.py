@@ -22,7 +22,7 @@ from controllers import UnstoppableTournamentController
 
 
 # Class to implement tests -------------------------------------------------------------------------------------------
-class PassTestView:
+class PassPlayerTestView:
     """A class used to test interfaces bypassing users input. """
     def __init__(self):
         for method, return_ in {
@@ -31,6 +31,21 @@ class PassTestView:
             "birth_date": "09 07 1996",
             "gender": "homMe",
             "rank": "42",
+        }.items():
+            setattr(self, f"enter_{method}", lambda r=return_: r)
+
+
+class PassTournamentTestView:
+    """A class used to test interfaces bypassing users input. """
+    def __init__(self):
+        for method, return_ in {
+            "name": "Tournoi d'été",
+            "place": "Bordeaux",
+            "beginning_date": "10 07 2021",
+            "ending_date": "",
+            "time_control": "bullet",
+            "number_of_rounds": "",
+            "description": "Le tournoi d'été de l'année 2021. 8 participants."
         }.items():
             setattr(self, f"enter_{method}", lambda r=return_: r)
 
@@ -66,10 +81,27 @@ def test_controller_add_a_new_player():
         "gender": "Homme",
         "rank": 42,
     }
-    view = PassTestView()
-    controller = UnstoppableTournamentController(view)
-    controller.add_a_new_player()
-    return controller.players[0].get_information() == expected_result
+    player_view = PassPlayerTestView()
+    tournament_view = PassTournamentTestView()
+    controller = UnstoppableTournamentController(player_view, tournament_view)
+    return controller.add_new_player().get_information() == expected_result
+
+
+def test_controller_create_tournament():
+    expected_result = {
+        "name": "Tournoi d'été",
+        "place": "Bordeaux",
+        "beginning_date": date(2021, 7, 10),
+        "ending_date": date(2021, 7, 10),
+        "time_control": "Bullet",
+        "number_of_rounds": 4,
+        "description": "Le tournoi d'été de l'année 2021. 8 participants.",
+    }
+    player_view = PassPlayerTestView()
+    tournament_view = PassTournamentTestView()
+    controller = UnstoppableTournamentController(player_view, tournament_view)
+    controller.tournament = controller.create_tournament()
+    return controller.tournament.get_information() == expected_result
 
 
 # Views testing functions --------------------------------------------------------------------------------------------
