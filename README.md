@@ -17,7 +17,7 @@ When you have finished using it, you can run ```deactivate``` to exit the virtua
 1. Follow the previous installation steps.
 2. Go at the root of the project (.../openclassrooms_project_4/).
 3. Activate the virtual environment.
-4. Run ```python main.py```.
+4. Run ```python src/main.py```.
 
 ## Flake8 report
 1. Follow the previous installation steps.
@@ -46,7 +46,7 @@ Quand vous avez fini de l'utiliser, vous pouvez désactiver l'environnement virt
 1. Suivez les étapes d'installation.
 2. Allez à la racine du projet (.../openclassrooms_project_4/).
 3. Activez l'environnement virtuel.
-4. Exécutez la commande ```python main.py```.
+4. Exécutez la commande ```python src/main.py```.
 
 ## Rapport flake8
 1. Suivez les étapes d'installation.

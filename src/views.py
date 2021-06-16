@@ -4,29 +4,29 @@
 
 # python standard library imports
 import os
-
-
 # outside libraries imports
 
-
 # local imports
-from models import Match
 
 
 class View:
     @staticmethod
-    def clear_view():
+    def clear():
         os.system("cls" if os.name == "nt" else "clear")
 
     @staticmethod
     def enter_information(message: str):
         return input(message)
 
+    @staticmethod
+    def show_message(message: str):
+        print(message)
+
 
 class PlayerView(View):
     def enter_first_name(self):
         """"""
-        return self.enter_information("Prénom : ")
+        return self.enter_information("\nPrénom : ")
 
     def enter_last_name(self):
         """"""
@@ -46,7 +46,7 @@ class PlayerView(View):
 
 class TournamentView(View):
     def enter_name(self):
-        return self.enter_information("Nom du tournoi : ")
+        return self.enter_information("\nNom du tournoi : ")
 
     def enter_place(self):
         return self.enter_information("Lieu du tournoi : ")
@@ -70,7 +70,7 @@ class TournamentView(View):
         return self.enter_information("Description et commentaires sur le tournoi : ")
 
     def enter_round_name(self):
-        return self.enter_information("Nom du nouveau round : ")
+        return self.enter_information("\nNom du nouveau round : ")
 
     def show_match(self, match):
         counter = 0
@@ -80,21 +80,6 @@ class TournamentView(View):
 
     def enter_match_result(self):
         return self.enter_information("Gagnant du match ('1' pour J1, '2' pour J2 ou '0' en cas de match nul) : ")
-
-
-class UnstoppableTournamentAdminView:
-    def enter_player_player_information(self, number_of_players: int = 8):
-        players = [self.enter_player_a_player_information() for n in range(self.number_of_players)]
-        return players
-
-    def enter_player_a_player_information(self):
-        pass
-
-    def enter_player_tournament_informations(self):
-        pass
-
-    def enter_player_match_scores(self, match: Match):
-        pass
 
 
 if __name__ == '__main__':

@@ -47,5 +47,5 @@ venv.bak/
 *.pem
 *.pub
 
-# flake8 report directory
-flake8_rapport/
+# json files
+*.json
