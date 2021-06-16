@@ -277,7 +277,9 @@ class MainController:
         self.tournaments = self.load_tournaments()
         self.player_view = PlayerView()
         self.tournament_view = TournamentView()
+        # used to access UTC class methods and attributes
         self.controller = UnstoppableTournamentController(self.player_view, self.tournament_view)
+        # used to control created tournaments
         self.tournament_controllers = []
 
     def run(self):
@@ -321,7 +323,23 @@ class MainController:
 
     def modify_rank(self):
         """ A method to modify rank outside from player creation. """
-        pass
+        self.tournament_view.clear()
+        if len(self.players) != 0:
+            counter = 1
+            message = "Le classement de quel joueur voulez-vous modifier ?"
+            for player in sorted(self.players, key=lambda p: p.first_name):
+                message += f"\n {counter} - {player}"
+                counter += 1
+            player_range = ""
+            while not(player_range.isdecimal() and player_range != 0 and int(player_range) < len(self.players) + 1):
+                player_range = self.tournament_view.enter_information(message)
+            new_rank = None
+            while new_rank is None:
+                new_rank = self.controller.get_player_rank()
+            self.players[int(player_range) - 1].rank = new_rank
+        else:
+            print("Vous devez d'abord ajouter des joueurs.")
+
 
     def reports(self):
         """ A method to execute the reports. """
