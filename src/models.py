@@ -45,18 +45,10 @@ class Player:
         return f"{self.first_name} {self.last_name} - rang : {self.rank}"
 
 
-class Match:
+class Match(tuple):
     """ The model used to stock matches information. """
-    def __init__(
-            self,
-            player_1,
-            player_2,
-    ):
-        """ The match class constructor. """
-        self.player_1 = player_1
-        self.player_2 = player_2
-        self.score_of_player_1 = 0
-        self.score_of_player_2 = 0
+    def __new__(cls, player_1, player_2):
+        return super(Match, cls).__new__(cls, tuple([[player_1, 0], [player_2, 0]]))
 
 
 class Round:
