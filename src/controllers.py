@@ -24,6 +24,7 @@ class UnstoppableTournamentController:
         self.number_of_players = number_of_players
 
     def run(self):
+        """ A method to execute the tournament. """
         self.tournament = self.create_tournament()
         self.players = [self.add_new_player() for n in range(self.number_of_players)]
         while self.tournament.active_round <= self.tournament.number_of_rounds:
@@ -33,6 +34,7 @@ class UnstoppableTournamentController:
             self.tournament.active_round += 1
 
     def update_scores(self):
+        """ A method to enter and control scores. """
         for player in self.players:
             player.score = 0
         for round_ in self.tournament.rounds:
@@ -48,6 +50,7 @@ class UnstoppableTournamentController:
             self.tournament_view.show_message(message)
 
     def generate_new_round(self):
+        """ A method to generate a new round. """
         round_name = self.get_round_name()
         if self.tournament.active_round == 0:
             sorted_players_iterator = iter(sorted(self.players, key=lambda p: p.rank))
@@ -59,6 +62,7 @@ class UnstoppableTournamentController:
         self.tournament.rounds.append(Round(round_name, matches))
 
     def get_round_name(self):
+        """ A method to control a round name. """
         name = self.tournament_view.enter_round_name()
         if name == "":
             return "Round " + str(self.tournament.active_round + 1)
@@ -66,6 +70,7 @@ class UnstoppableTournamentController:
             return name
 
     def get_round_scores(self):
+        """ A method to control a round scores. """
         for match in self.tournament.rounds[-1].matches:
             self.tournament_view.show_match(match)
             match_winner_range = ""
@@ -79,6 +84,7 @@ class UnstoppableTournamentController:
         self.tournament.rounds[-1].close()
 
     def create_tournament(self):
+        """ A method to return a tournament object. """
         tournament = {
             "name": None,
             "place": None,
@@ -97,6 +103,7 @@ class UnstoppableTournamentController:
 
     @staticmethod
     def _treat_french_date_string(date_str: str):
+        """ A method to check a date entry and to format it. """
         try:
             treated_date = date(*(int(time_unit) for time_unit in reversed(date_str.split(" "))))
         except (ValueError, TypeError):
@@ -104,18 +111,22 @@ class UnstoppableTournamentController:
         return treated_date
 
     def get_tournament_name(self):
+        """ A method to control a tournament name entry. """
         name = self.tournament_view.enter_name()
         return name
 
     def get_tournament_place(self):
+        """ A method to control a tournament place entry. """
         place = self.tournament_view.enter_place()
         return place
 
     def get_tournament_beginning_date(self):
+        """ A method to control a tournament beginning date entry. """
         beginning_date = self.tournament_view.enter_beginning_date()
         return self._treat_french_date_string(beginning_date)
 
     def get_tournament_ending_date(self):
+        """ A method to control a tournament ending date entry. """
         ending_date = self.tournament_view.enter_ending_date()
         if ending_date == "":
             return False
@@ -123,6 +134,7 @@ class UnstoppableTournamentController:
             return self._treat_french_date_string(ending_date)
 
     def get_tournament_time_control(self):
+        """ A method to control a tournament time control entry. """
         time_control = self.tournament_view.enter_time_control().capitalize()
         if time_control in ("Bullet", "Blitz", "Coup rapide"):
             return time_control
@@ -130,6 +142,7 @@ class UnstoppableTournamentController:
             return None
 
     def get_tournament_number_of_rounds(self):
+        """ A method to control a tournament number of round entry. """
         number_of_rounds = self.tournament_view.enter_number_of_rounds()
         if number_of_rounds == "":
             return 4
@@ -139,10 +152,12 @@ class UnstoppableTournamentController:
             return None
 
     def get_tournament_description(self):
+        """ A method to control a tournament description entry. """
         description = self.tournament_view.enter_description()
         return description
 
     def add_new_player(self):
+        """ A method to add a player to a tournament (the player may already exist). """
         action = self.tournament_view.enter_information(
             "Voulez-vous ajouter :"
             "\n 1 - Un utilisateur existant ?"
@@ -162,6 +177,7 @@ class UnstoppableTournamentController:
             return self.add_new_player()
 
     def create_new_player(self):
+        """ A method to create a new player. """
         player = {
             "first_name": None,
             "last_name": None,
@@ -181,6 +197,7 @@ class UnstoppableTournamentController:
 
     @staticmethod
     def _format_player_name(name_to_format):
+        """ A method to control and format a player name entry. """
         name = ""
         split_name = re_split(r"([\-]+|[ ]+|[']+)", name_to_format)
         for word in split_name:
@@ -197,25 +214,30 @@ class UnstoppableTournamentController:
         return name
 
     def _treat_player_name(self, name):
+        """ A method to coordinate several controls on a name entry. """
         if self._player_name_is_valid(name):
             return self._format_player_name(name)
         else:
             return None
 
     def get_player_first_name(self):
+        """ A method to control a player first name entry. """
         name = self.player_view.enter_first_name()
         return self._treat_player_name(name)
 
     def get_player_last_name(self):
+        """ A method to control a player last name entry. """
         name = self.player_view.enter_last_name()
         return self._treat_player_name(name)
 
     @staticmethod
     def _format_date(date_: str):
+        """ A method to format a date. """
         split_date = date_.split(" ")
         return (int(time_measure) for time_measure in reversed(split_date))
 
     def get_player_birth_date(self):
+        """ A method to control a player birth date. """
         birth_date_str = self.player_view.enter_birth_date()
         if birth_date_str.replace(" ", "").isdecimal():
             birth_date_tuple = self._format_date(birth_date_str)
@@ -230,6 +252,7 @@ class UnstoppableTournamentController:
         return birth_date
 
     def get_player_gender(self):
+        """ A method to control a player gender. """
         gender = self.player_view.enter_gender().capitalize()
         if gender in ("Homme", "Femme", "Autre"):
             return gender
@@ -237,6 +260,7 @@ class UnstoppableTournamentController:
             return None
 
     def get_player_rank(self):
+        """ A method to control a player rank. """
         rank = self.player_view.enter_rank()
         if rank.isdecimal():
             return int(rank)
@@ -245,7 +269,9 @@ class UnstoppableTournamentController:
 
 
 class MainController:
+    """ The main controller class. """
     def __init__(self, db):
+        """ The MainController initiator. """
         self.db = db
         self.players = self.load_players()
         self.tournaments = self.load_tournaments()
@@ -255,6 +281,7 @@ class MainController:
         self.tournament_controllers = []
 
     def run(self):
+        """ A method to execute the controller and its menu. """
         action = self.tournament_view.enter_information(
             "\n--------------------------------------------------------"
             "\nVoulez-vous :"
@@ -267,7 +294,9 @@ class MainController:
         )
         if action == "1":
             self.players.append(self.controller.create_new_player())
+            print(self.players)
             self.save_players()
+            print(self.players)
             return True
         elif action == "2":
             print(self.players)
@@ -291,9 +320,11 @@ class MainController:
             return self.run()
 
     def modify_rank(self):
+        """ A method to modify rank outside from player creation. """
         pass
 
     def reports(self):
+        """ A method to execute the reports. """
         self.tournament_view.clear()
         action = self.tournament_view.enter_information(
             "Voulez-vous consulter la liste de :"
@@ -322,6 +353,7 @@ class MainController:
             self.list_matches_from_tournament()
 
     def list_players_by_name(self):
+        """ A report method to list players sorted by name."""
         self.tournament_view.clear()
         counter = 1
         message = ""
@@ -331,6 +363,7 @@ class MainController:
         self.tournament_view.show_message(message)
 
     def list_players_by_rank(self):
+        """ A report method to list players sorted by rank."""
         self.tournament_view.clear()
         counter = 1
         message = ""
@@ -340,6 +373,7 @@ class MainController:
         self.tournament_view.show_message(message)
 
     def select_tournament(self):
+        """ A method to select a to tournament on which user will see reports.."""
         if self.tournaments:
             counter = 1
             chosen = ""
@@ -353,6 +387,7 @@ class MainController:
             return Tournament(None, None, None, None, None)
 
     def list_players_from_tournament_by_name(self):
+        """ A report method to list a tournament players sorted by name."""
         self.tournament_view.clear()
         tournament = self.select_tournament()
         message = ""
@@ -361,6 +396,7 @@ class MainController:
         self.tournament_view.show_message(message)
 
     def list_players_from_tournament_by_rank(self):
+        """ A report method to list a tournament players sorted by rank."""
         self.tournament_view.clear()
         tournament = self.select_tournament()
         message = ""
@@ -369,6 +405,7 @@ class MainController:
         self.tournament_view.show_message(message)
 
     def list_tournaments(self):
+        """ A report method to list tournaments."""
         self.tournament_view.clear()
         message = ""
         for tournament in self.tournaments:
@@ -376,6 +413,7 @@ class MainController:
         self.tournament_view.show_message(message)
 
     def list_rounds_from_tournament(self):
+        """ A report method to list rounds from a tournament."""
         self.tournament_view.clear()
         tournament = self.select_tournament()
         message = ""
@@ -384,6 +422,7 @@ class MainController:
         self.tournament_view.show_message(message)
 
     def list_matches_from_tournament(self):
+        """ A report method to list matches from a tournament."""
         self.tournament_view.clear()
         tournament = self.select_tournament()
         message = ""
@@ -393,19 +432,23 @@ class MainController:
         self.tournament_view.show_message(message)
 
     def save_players(self):
+        """ A method to save serialized versions of player objects in a .JSON."""
         self.db.table("players").truncate()
         self.db.table("players").insert_multiple([player.serialized() for player in self.players])
 
     def load_players(self):
+        """ A method to load serialized versions of player objects from a .JSON and to extract them."""
         return [Player(**kwargs) for kwargs in self.db.table("players").all()]
 
     def save_tournaments(self):
+        """ A method to save serialized versions of tournament objects in a .JSON."""
         self.db.table("tournament").truncate()
         self.db.table("tournament").insert_multiple([
             ctr.tournament.serialized() for ctr in self.tournament_controllers
         ])
 
     def load_tournaments(self):
+        """ A method to load serialized versions of tournament objects from a .JSON and to extract them."""
         tournaments = self.db.table("tournament").all()
         unserialized_tournament = []
         for tournament in tournaments:
