@@ -23,7 +23,7 @@ class Player:
             rank: int,
             id_=None,
     ):
-        """ The Player class constructor. """
+        """ The Player class initiator. """
         self.first_name = first_name
         self.last_name = last_name
         if type(birth_date) in (tuple, list):
@@ -36,7 +36,7 @@ class Player:
         Player.id_ += 1
 
     def serialized(self):
-        """ Return a player information as a dict. """
+        """ Return a serialized version of the object. """
         b = self.birth_date
         return {
             "first_name": self.first_name,
@@ -48,12 +48,14 @@ class Player:
         }
 
     def __repr__(self):
+        """ Repr overloading. """
         return f"{self.first_name} {self.last_name}, {self.rank}e"
 
 
 class Match(tuple):
     """ The model used to stock matches information. """
     def __new__(cls, player_1, player_2):
+        """ The Match class constructor. """
         if type(player_1) is list:
             player_1, score_1 = player_1
             player_2, score_2 = player_2
@@ -65,9 +67,11 @@ class Match(tuple):
             return super(Match, cls).__new__(cls, tuple([[player_1, 0], [player_2, 0]]))
 
     def serialized(self):
+        """ Return a serialized version of the object. """
         return [self[0][0].serialized(), self[0][1]], [self[1][0].serialized(), self[1][1]]
 
     def __repr__(self):
+        """ Repr overloading. """
         return f"{self[0][0].__repr__()} (score: {self[0][1].__repr__()})\t\t" +\
             f"<VS>\t\t{self[1][0].__repr__()} (score: {self[1][1].__repr__()})"
 
@@ -82,7 +86,7 @@ class Round:
             ending_time=None,
 
     ):
-        """ The round class constructor. """
+        """ The round class initiator. """
         self.name = name
         self.matches = matches
         if beginning_time is not None:
@@ -96,6 +100,7 @@ class Round:
         self.ending_time = datetime.now()
 
     def serialized(self):
+        """ Return a serialized version of the object. """
         b = self.beginning_time
         e = self.ending_time
         return {
@@ -106,6 +111,7 @@ class Round:
         }
 
     def __repr__(self):
+        """ Repr overloading. """
         string = f"{self.name} :\n{'-' * (len(self.name) + 2)}"
         for match in self.matches:
             string += f"\n {match.__repr__()}"
@@ -127,7 +133,7 @@ class Tournament:
             players=[],
             rounds=[],
     ):
-        """ The tournament constructor. """
+        """ The tournament initiator. """
         self.name = name
         self.place = place
         self.beginning_date = beginning_date
@@ -147,9 +153,11 @@ class Tournament:
             self.ending_date = ending_date
 
     def __repr__(self):
+        """ Repr overloading. """
         return f"{self.name}, {self.place}, {self.beginning_date} - {self.ending_date}"
 
     def serialized(self):
+        """ Return a serialized version of the object. """
         b = self.beginning_date
         e = self.ending_date
         return {
