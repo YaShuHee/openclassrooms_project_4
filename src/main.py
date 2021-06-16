@@ -9,13 +9,12 @@
 
 
 # local imports
-# from view import TournamentAdminView
-# from controllers import UnstoppableTournamentController
-# from controllers import TournamentController
+from views import PlayerView, TournamentView
+from controllers import UnstoppableTournamentController
 
 
 if __name__ == '__main__':
-    # view = TournamentAdminView()
-    # controller = TournamentController(view)
-    # controller.run()
-    pass
+    player_view = PlayerView()
+    tournament_view = TournamentView()
+    controller = UnstoppableTournamentController(player_view, tournament_view)
+    controller.run()

@@ -19,7 +19,7 @@ class View:
         os.system("cls" if os.name == "nt" else "clear")
 
     @staticmethod
-    def enter_information(self, message: str):
+    def enter_information(message: str):
         return input(message)
 
 
@@ -68,6 +68,18 @@ class TournamentView(View):
 
     def enter_description(self):
         return self.enter_information("Description et commentaires sur le tournoi : ")
+
+    def enter_round_name(self):
+        return self.enter_information("Nom du nouveau round : ")
+
+    def show_match(self, match):
+        counter = 0
+        for pair in match:
+            print(f"Joueur {counter+1} : {pair[0]}")
+            counter += 1
+
+    def enter_match_result(self):
+        return self.enter_information("Gagnant du match ('1' pour J1, '2' pour J2 ou '0' en cas de match nul) : ")
 
 
 class UnstoppableTournamentAdminView:

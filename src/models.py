@@ -42,7 +42,7 @@ class Player:
         }
 
     def __repr__(self):
-        return f"{self.first_name} {self.last_name} - rang : {self.rank}"
+        return f"{self.first_name} {self.last_name} | rang : {self.rank}e | score : {self.score}"
 
 
 class Match(tuple):
@@ -87,6 +87,7 @@ class Tournament:
         self.beginning_date = beginning_date
         self.time_control = time_control
         self.description = description
+        self.rounds = []
         self.active_round = 0
         self.number_of_rounds = number_of_rounds
         if ending_date is None:
@@ -103,6 +104,7 @@ class Tournament:
             "time_control": self.time_control,
             "description": self.description,
             "number_of_rounds": self.number_of_rounds,
+            "rounds": self.rounds,
         }
 
 

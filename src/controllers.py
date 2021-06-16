@@ -6,13 +6,11 @@
 from re import split as re_split
 from datetime import date
 
-
 # outside libraries imports
 
 
 # local imports
-# from models import Tournament, Round, Match
-from models import Player, Tournament
+from models import Player, Tournament, Round, Match
 
 
 class UnstoppableTournamentController:
@@ -20,27 +18,56 @@ class UnstoppableTournamentController:
     def __init__(self, player_view, tournament_view, number_of_players: int = 8):
         self.player_view = player_view
         self.tournament_view = tournament_view
-        self.players = []
-        self.tournament = None
-        # self.players = [self.add_new_player() for n in range(number_of_players)]
-        # self.tournament = self.create_tournament()
+        self.players = [self.add_new_player() for n in range(number_of_players)]
+        self.tournament = self.create_tournament()
 
     def run(self):
-        while self.tournament.active_round < self.tournament.number_of_rounds:
+        while self.tournament.active_round <= self.tournament.number_of_rounds:
+            self.update_scores()
             self.generate_new_round()
             self.get_round_scores()
             self.tournament.active_round += 1
 
+    def update_scores(self):
+        for player in self.players:
+            player.score = 0
+        for round in self.tournament.rounds:
+            for match in round.matches:
+                for pair in match:
+                    pair[0].score += pair[1]
+                    if int(pair[0].score) == pair[0].score:
+                        pair[0].score = int(pair[0].score)
+
     def generate_new_round(self):
+        round_name = self.get_round_name()
         if self.tournament.active_round == 0:
-            sorted_players = self.players.sort(key=lambda p: p.rank)
+            sorted_players_iterator = iter(sorted(self.players, key=lambda p: p.rank))
         else:
-            sorted_players = self.players.sort(key=lambda p: p.score)
-        print(sorted_players)
-        # generate pairs
+            # TODO : sort players by rank when they have the same score
+            # TODO : avoid playing several times against the same player
+            sorted_players_iterator = iter(sorted(self.players, key=lambda p: p.score, reverse=True))
+        matches = [Match(player, next(sorted_players_iterator)) for player in sorted_players_iterator]
+        self.tournament.rounds.append(Round(round_name, matches))
+
+    def get_round_name(self):
+        name = self.tournament_view.enter_round_name()
+        if name == "":
+            return "Round " + str(self.tournament.active_round)
+        else:
+            return name
 
     def get_round_scores(self):
-        pass
+        for match in self.tournament.rounds[-1].matches:
+            self.tournament_view.show_match(match)
+            match_winner_range = ""
+            while match_winner_range not in ("0", "1", "2"):
+                match_winner_range = self.tournament_view.enter_match_result()
+            if match_winner_range == "0":
+                match[0][1] = 0.5
+                match[1][1] = 0.5
+            else:
+                match[int(match_winner_range) - 1][1] = 1
+        self.tournament.rounds[-1].close()
 
     def create_tournament(self):
         tournament = {
