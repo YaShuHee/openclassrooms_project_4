@@ -8,7 +8,6 @@ from datetime import date
 
 # outside libraries imports
 
-
 # local imports
 from models import Player, Tournament, Round, Match
 
@@ -153,7 +152,6 @@ class UnstoppableTournamentController:
 
     @staticmethod
     def _format_player_name(name_to_format):
-        """ """
         name = ""
         split_name = re_split(r"([\-]+|[ ]+|[']+)", name_to_format)
         for word in split_name:
