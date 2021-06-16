@@ -19,7 +19,7 @@ class View:
     @staticmethod
     def enter_information(message: str):
         """ A method to get user inputs. """
-        return input(message)
+        return input(message + "\n>>> ")
 
     @staticmethod
     def show_message(message: str):
@@ -39,11 +39,11 @@ class PlayerView(View):
 
     def enter_birth_date(self):
         """ A method to get the player birth date. """
-        return self.enter_information("Date de naissance (format <jj> <mm> <aaaa>) : ")
+        return self.enter_information("Date de naissance (format jj/mm/aaaa) : ")
 
     def enter_gender(self):
         """ A method to get the player gender. """
-        return self.enter_information("Genre ('homme', 'femme' ou 'autre') : ")
+        return self.enter_information("Genre ('H' pour homme, 'F' pour femme et 'A' pour autre) : ")
 
     def enter_rank(self):
         """ A method to get the player rank. """
