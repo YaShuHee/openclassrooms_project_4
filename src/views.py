@@ -51,6 +51,18 @@ class PlayerView(View):
         """ A method to get the player rank. """
         return self.enter_information("Classement : ")
 
+    @staticmethod
+    def list_players(players, show_index: bool = False):
+        """ A method to display a list of players. """
+        if show_index:
+            index = 1
+            for player in players:
+                print(f" {index} - {player.first_name} {player.last_name} ({player.birth_date}), {player.rank}e")
+                index += 1
+        else:
+            for player in players:
+                print(f"{player.first_name} {player.last_name} ({player.birth_date}), {player.rank}e")
+
 
 class TournamentView(View):
     """ A view for the tournament model. """

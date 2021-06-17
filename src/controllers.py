@@ -214,12 +214,56 @@ class PlayerCreator(BasicCreator):
 
 
 class TournamentRunner:
-    def __init__(self, tournament: Tournament, player_creator: PlayerCreator, players: list = []):
-        pass
+    def __init__(self, view: View, tournament: Tournament, player_creator: PlayerCreator, known_players: list):
+        self.view = view
+        self.tournament = tournament
+        self.player_creator = player_creator
+        self.known_players = known_players
 
     def run(self):
-        print("Add players.")
-        print("Run tournament.")
+        # add players
+        self.add_players()
+        # run the tournament with added players
+        self._run()
+
+    def add_players(self):
+        while len(self.tournament.players) < self.tournament.number_of_players:
+            number_of_players = len(self.tournament.players)
+            self.view.display_message(f"Votre tournoi compte actuellement {number_of_players} joueur"
+                                      f"{'s' * (number_of_players > 1)} sur {self.tournament.number_of_players}.")
+            answer = ""
+            while answer not in ("1", "2", "/list"):
+                answer = self.view.enter_information(
+                    "Voulez-vous :"
+                    "\n 1 - Ajouter un joueur (tapez '/list' pour voir les joueurs) ?"
+                    "\n 2 - Créer un nouveau joueur ?"
+                ).lower()
+            if answer == "1" and number_of_players != 0:
+                player = self.select_a_known_player()
+                if player in self.tournament.players:
+                    self.view.display_message("Ce joueur est déjà dans le tournoi !")
+                else:
+                    self.tournament.players.append(player)
+            elif answer == "2":
+                new_player = self.player_creator.run()
+                self.known_players.append(new_player)
+                self.tournament.players.append(new_player)
+            elif answer == "/list":
+                self.player_creator.view.list_players(self.known_players)
+
+    def select_a_known_player(self):
+        number_of_players = len(self.known_players)
+        player_range = ""
+        while not(player_range.isdecimal() and player_range != "0" and int(player_range) <= number_of_players):
+            self.player_creator.view.list_players(self.known_players, show_index=True)
+            player_range = self.view.enter_information(f"Sélectionner le joueur que vous voulez ajouter "
+                                                       f"(1-{number_of_players})")
+        return self.known_players[int(player_range) - 1]
+
+    def _run(self):
+        print("run tournament with :")
+        for player in self.tournament.players:
+            print(player)
 
 
 class MainController:
@@ -239,14 +283,6 @@ class MainController:
         """ A method to execute the controller and its menu. """
         running = True
         while running:
-
-            print("PLAYERS:")
-            for player in self.players:
-                print(player)
-            print("TOURNAMENTS:")
-            for tournament in self.tournaments:
-                print(tournament)
-
             action = self.tournament_view.enter_information(
                 "\n--------------------------------------------------------"
                 "\nVoulez-vous :"
@@ -264,7 +300,7 @@ class MainController:
 
             elif action == "2":
                 self.tournaments.append(self.tournament_creator.run())
-                TournamentRunner(self.tournaments[-1], self.player_creator, self.players).run()
+                TournamentRunner(self.view, self.tournaments[-1], self.player_creator, self.players).run()
                 self.save_players()
                 self.save_tournaments()
                 running = True
@@ -297,7 +333,36 @@ class MainController:
         print("Load tournaments")
 
     def reports(self):
-        pass
+        """ A method to execute the reports. """
+        self.view.clear()
+        action = self.view.enter_information(
+            "Voulez-vous consulter la liste de :"
+            "\n 1 - Tous les joueurs, triés par nom ?"
+            "\n 2 - Tous les joueurs, triés par classement ?"
+            "\n 3 - Les joueurs d'un tournoi, triés par nom ?"
+            "\n 4 - Les joueurs d'un tournoi, triés par classement ?"
+            "\n 5 - Les tournois ?"
+            "\n 6 - Les tours d'un tournoi ?"
+            "\n 7 - Les matchs d'un tournoi ?"
+            "\n"
+        )
+        self.view.clear()
+        if action == "1":
+            "Liste des joueurs, triés par nom :"
+            self.player_view.list_players(sorted(self.players, key=lambda p: p.first_name))
+        elif action == "2":
+            "Liste des joueurs, triés par classement :"
+            self.player_view.list_players(sorted(self.players, key=lambda p: p.rank))
+        elif action == "3":
+            pass
+        elif action == "4":
+            pass
+        elif action == "5":
+            pass
+        elif action == "6":
+            pass
+        elif action == "7":
+            pass
 
 
 # OLD IMPLEMENTATION #################################################################################################
