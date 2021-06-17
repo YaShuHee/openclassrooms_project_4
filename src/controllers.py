@@ -7,7 +7,7 @@
 import re
 import os
 from os.path import join, dirname, abspath
-from datetime import date
+from datetime import date, datetime
 
 # outside libraries imports
 from tinydb import TinyDB
@@ -264,10 +264,148 @@ class TournamentRunner:
             print(player)
 
 
+class Loader:
+    """ A class to manage players and tournaments, independently from any controller. """
+    def __init__(self, players, tournaments):
+        self.players = players
+        self.tournaments = tournaments
+
+        # db initialisation
+        root_path = dirname(dirname(abspath(__file__)))
+        database_directory = join(root_path, "database")
+        if not os.path.exists(database_directory):
+            os.mkdir(database_directory)
+        self.db = TinyDB(join(database_directory, "db.json"))
+
+    def serialized_player(self, player) -> dict:
+        """ Return a serialized version of the player object. """
+        b = player.birth_date
+        return {
+            "first_name": player.first_name,
+            "last_name": player.last_name,
+            "birth_date": (b.year, b.month, b.day),
+            "gender": player.gender,
+            "rank": player.rank,
+            "uid": player.uid,
+        }
+
+    def unserialized_player(self, player) -> Player:
+        """ Return an Player instance from a serialized instance saved in a previous session. """
+        clean_kwargs = {
+            "first_name": player.first_name,
+            "last_name": player.last_name,
+            "birth_date": date(*player["birth_date"]),
+            "gender": player.gender,
+            "rank": player.rank,
+            "uid": player.uid,
+        }
+        return Player(**clean_kwargs)
+
+    def serialized_tournament(self, tournament) -> dict:
+        """ Return a serialized version of a Tournament object. """
+        b = tournament.beginning_date
+        e = tournament.ending_date
+        return {
+            "name": tournament.name,
+            "place": tournament.place,
+            "beginning_date": (b.year, b.month, b.day),
+            "ending_date": (e.year, e.month, e.day),
+            "time_control": tournament.time_control,
+            "description": tournament.description,
+            "number_of_rounds": tournament.number_of_rounds,
+            "number_of_players": tournament.number_of_players,
+            "players": [player.uid for player in tournament.players],
+            "rounds": [self.serialized_round(round_) for round_ in tournament.rounds],
+        }
+
+    def unserialized_tournament(self, tournament) -> Tournament:
+        """ Return an Tournament instance from a serialized instance saved in a previous session. """
+        clean_kwargs = {
+            "name": tournament["name"],
+            "place": tournament["place"],
+            "beginning_date": date(*tournament["beginning_date"]),
+            "ending_date": date(tournament["ending_date"]),
+            "time_control": tournament["time_control"],
+            "description": tournament["description"],
+            "number_of_rounds": tournament["number_of_rounds"],
+            "number_of_players": tournament["number_of_players"],
+            "players": [self.players[uid] for uid in tournament["players"]],
+            "rounds": [self.unserialized_round(round_) for round_ in tournament["rounds"]],
+        }
+        return Tournament(**clean_kwargs)
+
+    def serialized_round(self, round_: Round) -> dict:
+        """ Return a serialized version of a Round object."""
+        b = round_.beginning_time
+        e = round_.ending_time
+        return {
+            "name": round_.name,
+            "matches": [self.serialized_match(match) for match in round_.matches],
+            "beginning_time": (b.year, b.month, b.day, b.hour, b.minute),
+            "ending_time": (e.year, e.month, e.day, e.hour, e.minute),
+        }
+
+    def unserialized_round(self, round_: dict) -> Round:
+        """ Return an unserialized version of a previously saved Round object."""
+        clean_kwargs = {
+            "name": round_["name"],
+            "matches": [self.unserialized_match(match) for match in round_["matches"]],
+            "beginning_time": datetime(*round_["beginning_time"]),
+            "ending_time": datetime(*round_["ending_time"]),
+        }
+        return Round(clean_kwargs)
+
+    def serialized_match(self, match: Match) -> tuple[list, list]:
+        """ Return a serialized version of a Match object. Instead of the player, it's the player UID that is saved.
+        """
+        return [match.p1.uid, match.s1], [match.p2.uid, match.s2]
+
+    def unserialized_match(self, match: dict):
+        """ Return a Match object referencing to Players objects from a previously serialized Match. """
+        player_1 = self.players[match[0][0]]
+        player_2 = self.players[match[1][0]]
+        score_1 = self.players[match[0][1]]
+        score_2 = self.players[match[1][1]]
+        return Match(player_1, player_2, score_1, score_2)
+
+    def save_players(self):
+        """ Saves the self.players list in a .JSON file after serializing objects. """
+        print("Dans save_players:", id(self.players))
+        self.db.table("players").truncate()
+        success = self.db.table("players").insert_multiple([self.serialized_player(player) for player in self.players])
+        print("VRAIE SAUVEGARDE DES PLAYERS :")
+        print(success)
+
+    def save_tournaments(self):
+        """ Saves the self.tournaments list in a .JSON file after serializing objects. """
+        self.db.table("tournaments").truncate()
+        success = self.db.table("tournaments").insert_multiple([self.serialized_tournament(tournament)
+                                                      for tournament in self.tournaments])
+        print("VRAIE SAUVEGARDE DES TOURNOIS :")
+        print(success)
+
+    def load_players(self):
+        """ Unserialize and reinstanciate saved Players objects from previous sessions.
+        /!\ Should not create any player or tournament, by hand  before the call of this method.
+        /!\ Must be called before self.load_tournaments. """
+        Player.uid = 0
+        for player in self.db.table("players").all():
+            self.players.append(self.unserialized_player(player))
+        print("Dans load_players:", id(self.players))
+
+    def load_tournaments(self):
+        """ Unserialize and reinstanciate saved Tournaments objects from previous sessions.
+        /!\ Should not create any player or tournament, by hand  before the call of this method.
+        /!\ Must be called after self.load_players, because it uses Player.uid to reference Match objects. """
+        for tournament in self.db.table("tournaments").all():
+            self.tournaments.append(self.unserialized_player(tournament))
+
+
 class MainController:
     def __init__(self):
         # attributes
         self.players = []
+        print("Dans MainController.__init__:", id(self.players))
         self.tournaments = []
         # views initialisation
         self.view = View()
@@ -277,11 +415,9 @@ class MainController:
         self.player_creator = PlayerCreator(self.player_view)
         self.tournament_creator = TournamentCreator(self.tournament_view)
         # db initialisation
-        root_path = dirname(dirname(abspath(__file__)))
-        database_directory = join(root_path, "database")
-        if not os.path.exists(database_directory):
-            os.mkdir(database_directory)
-        self.db = TinyDB(join(database_directory, "db.json"))
+        self.loader = Loader(self.players, self.tournaments)
+        self.loader.load_players()
+        self.loader.load_tournaments()
 
     def run(self):
         """ A method to execute the controller and its menu. """
@@ -300,13 +436,13 @@ class MainController:
 
             if action == "1":
                 self.players.append(self.player_creator.run())
-                self.save_players()
+                self.loader.save_players()
 
             elif action == "2":
                 self.tournaments.append(self.tournament_creator.run())
                 TournamentRunner(self.view, self.tournaments[-1], self.player_creator, self.players).run()
-                self.save_players()
-                self.save_tournaments()
+                self.loader.save_players()
+                self.loader.save_tournaments()
                 running = True
 
             elif action == "3":
@@ -315,7 +451,7 @@ class MainController:
 
             elif action == "4":
                 self.modify_rank()
-                self.save_players()
+                self.loader.save_players()
                 running = True
 
             elif action == "5":
@@ -337,18 +473,6 @@ class MainController:
                                       f"{'-' * (player.gender == 'Autre')}"
                                       f"{'e' * (player.gender in ('Femme', 'Autre'))} "
                                       f"{player.rank}e.")
-
-    def save_players(self):
-        print("Save players")
-
-    def save_tournaments(self):
-        print("Save tournaments")
-
-    def load_players(self):
-        print("Load players")
-
-    def load_tournaments(self):
-        print("Load tournaments")
 
     def select_player(self):
         """ This method let the user chose a player on which to do actions.
@@ -401,7 +525,7 @@ class MainController:
         elif action == "6":
             pass
         elif action == "7":
-            import pdb ; pdb.set_trace()
+            pass
 
 
 # OLD IMPLEMENTATION #################################################################################################

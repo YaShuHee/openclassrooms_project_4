@@ -6,14 +6,15 @@
 from datetime import date, datetime
 from typing import List
 
-# outside libraries imports
 
+# outside libraries imports
 # local imports
 
 
 class Player:
     uid = 0
     """ The model used to stock players information. """
+
     def __init__(
             self,
             first_name: str,
@@ -38,18 +39,6 @@ class Player:
             self.uid = Player.uid
         Player.uid += 1
 
-    def serialized(self):
-        """ Return a serialized version of the object. """
-        b = self.birth_date
-        return {
-            "first_name": self.first_name,
-            "last_name": self.last_name,
-            "birth_date": (b.year, b.month, b.day),
-            "gender": self.gender,
-            "rank": self.rank,
-            "id_": self.id_,
-        }
-
     def __repr__(self):
         """ Repr overloading. """
         return f"{self.first_name} {self.last_name}, {self.rank}e"
@@ -57,30 +46,40 @@ class Player:
 
 class Match(tuple):
     """ The model used to stock matches information. """
-    def __new__(cls, player_1, player_2):
-        """ The Match class constructor. """
-        if type(player_1) is list:
-            player_1, score_1 = player_1
-            player_2, score_2 = player_2
-            return super(Match, cls).__new__(
-                cls,
-                tuple([[Player(**player_1), score_1], [Player(**player_2), score_2]])
-            )
-        else:
-            return super(Match, cls).__new__(cls, tuple([[player_1, 0], [player_2, 0]]))
 
-    def serialized(self):
-        """ Return a serialized version of the object. """
-        return [self[0][0].serialized(), self[0][1]], [self[1][0].serialized(), self[1][1]]
+    def __new__(cls, player_1, player_2, score_1: int = 0, score_2: int = 0):
+        """ The Match class constructor. """
+        return super(Match, cls).__new__(cls, tuple([[player_1, score_1], [player_2, score_2]]))
 
     def __repr__(self):
-        """ Repr overloading. """
-        return f"{self[0][0].__repr__()} (score: {self[0][1].__repr__()})\t\t" +\
-            f"<VS>\t\t{self[1][0].__repr__()} (score: {self[1][1].__repr__()})"
+        """ __repr__ overloading. """
+        return f"< {self.p1.first_name} {self.p1.last_name} : {self.s1}pt"\
+               f" ---<VS>--- {self.p2.first_name} {self.p2.last_name} : {self.s2}pt >"
+
+    @property
+    def p1(self):
+        """ Return the player 1 instance. """
+        return self[0][0]
+
+    @property
+    def p2(self):
+        """ Return the player 2 instance. """
+        return self[0][1]
+
+    @property
+    def s1(self):
+        """ Return the player 1 score. """
+        return self[1][0]
+
+    @property
+    def s2(self):
+        """ Return the player 2 score. """
+        return self[1][1]
 
 
 class Round:
     """ The model used to stock rounds information. """
+
     def __init__(
             self,
             name: str,
@@ -102,17 +101,6 @@ class Round:
         """ The method used to finish a round, auto-report the ending time."""
         self.ending_time = datetime.now()
 
-    def serialized(self):
-        """ Return a serialized version of the object. """
-        b = self.beginning_time
-        e = self.ending_time
-        return {
-            "name": self.name,
-            "matches": [match.serialized() for match in self.matches],
-            "beginning_time": (b.year, b.month, b.day, b.hour, b.minute),
-            "ending_time": (e.year, e.month, e.day, e.hour, e.minute),
-        }
-
     def __repr__(self):
         """ Repr overloading. """
         string = f"{self.name} :\n{'-' * (len(self.name) + 2)}"
@@ -123,6 +111,7 @@ class Round:
 
 class Tournament:
     """ The model used to stock tournament information. """
+
     def __init__(
             self,
             name: str,
@@ -159,23 +148,6 @@ class Tournament:
     def __repr__(self):
         """ Repr overloading. """
         return f"{self.name}, {self.place}, {self.beginning_date} - {self.ending_date}"
-
-    def serialized(self):
-        """ Return a serialized version of the object. """
-        b = self.beginning_date
-        e = self.ending_date
-        return {
-            "name": self.name,
-            "place": self.place,
-            "beginning_date":  (b.year, b.month, b.day),
-            "ending_date":  (e.year, e.month, e.day),
-            "time_control": self.time_control,
-            "description": self.description,
-            "number_of_rounds": self.number_of_rounds,
-            "number_of_players": self.number_of_players,
-            "players": self.players,
-            "rounds": [round_.serialized() for round_ in self.rounds],
-        }
 
 
 # execution ----------------------------------------------------------------------------------------------------------
