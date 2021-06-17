@@ -5,6 +5,8 @@
 # imports ------------------------------------------------------------------------------------------------------------
 # python standard library imports
 import re
+import os
+from os.path import join, dirname, abspath
 from datetime import date
 
 # outside libraries imports
@@ -73,7 +75,6 @@ class TournamentCreator(BasicCreator):
             return None
         else:
             return name
-        return name
 
     def get_place(self):
         """ A method to control a tournament place entry. """
@@ -132,7 +133,6 @@ class TournamentCreator(BasicCreator):
 
 class PlayerCreator(BasicCreator):
     """ A class to create Player objects. To create a Player instance, you must call the 'run' method. """
-    id_ = 1
 
     def __init__(self, view: PlayerView):
         """ The class initiatior. It just needs a PlayerView. """
@@ -146,9 +146,7 @@ class PlayerCreator(BasicCreator):
             "birth_date": None,
             "gender": None,
             "rank": None,
-            "id_": Player.id_,
         }
-        Player.id_ += 1
         return super().run(Player, player_kwargs)
 
     @staticmethod
@@ -257,7 +255,7 @@ class TournamentRunner:
         while not(player_range.isdecimal() and player_range != "0" and int(player_range) <= number_of_players):
             self.player_creator.view.list_players(self.known_players, show_index=True)
             player_range = self.view.enter_information(f"Sélectionner le joueur que vous voulez ajouter "
-                                                       f"(1-{number_of_players})")
+                                                       f"(1-{number_of_players}).")
         return self.known_players[int(player_range) - 1]
 
     def _run(self):
@@ -278,6 +276,12 @@ class MainController:
         # creation controller initialisation
         self.player_creator = PlayerCreator(self.player_view)
         self.tournament_creator = TournamentCreator(self.tournament_view)
+        # db initialisation
+        root_path = dirname(dirname(abspath(__file__)))
+        database_directory = join(root_path, "database")
+        if not os.path.exists(database_directory):
+            os.mkdir(database_directory)
+        self.db = TinyDB(join(database_directory, "db.json"))
 
     def run(self):
         """ A method to execute the controller and its menu. """
@@ -320,6 +324,20 @@ class MainController:
             else:
                 running = True
 
+    def modify_rank(self):
+        if len(self.players) == 0:
+            self.view.display_message("Aucun joueur pour le moment.")
+        else:
+            player = self.select_player()
+            rank = None
+            while rank is None:
+                rank = self.player_creator.get_rank()
+            player.rank = rank
+            self.view.display_message(f"{player.first_name} {player.last_name} est maintenant classé"
+                                      f"{'-' * (player.gender == 'Autre')}"
+                                      f"{'e' * (player.gender in ('Femme', 'Autre'))} "
+                                      f"{player.rank}e.")
+
     def save_players(self):
         print("Save players")
 
@@ -331,6 +349,27 @@ class MainController:
 
     def load_tournaments(self):
         print("Load tournaments")
+
+    def select_player(self):
+        """ This method let the user chose a player on which to do actions.
+        /!\ This method must not be called when self.players is empty. """
+        number_of_players = len(self.players)
+        player_range = ""
+        while not(player_range.isdecimal() and player_range != "0" and int(player_range) <= number_of_players):
+            self.player_view.list_players(self.players, show_index=True)
+            player_range = self.view.enter_information(f"Sélectionner un joueur (1-{number_of_players}).")
+        return self.players[int(player_range) - 1]
+
+    def select_tournament(self):
+        """ This method let the user chose a tournament on which to do actions.
+        /!\ This method must not be called when self.tournaments is empty. """
+        number_of_tournaments = len(self.tournaments)
+        tournament_range = ""
+        while not(tournament_range.isdecimal() and tournament_range != "0"
+                  and int(tournament_range) <= number_of_tournaments):
+            self.tournament_view.list_tournaments(self.tournaments, show_index=True)
+            tournament_range = self.view.enter_information(f"Sélectionner tournoi (1-{number_of_tournaments}).")
+        return self.tournaments[int(tournament_range) - 1]
 
     def reports(self):
         """ A method to execute the reports. """
@@ -358,11 +397,11 @@ class MainController:
         elif action == "4":
             pass
         elif action == "5":
-            pass
+            self.tournament_view.list_tournaments(self.tournaments)
         elif action == "6":
             pass
         elif action == "7":
-            pass
+            import pdb ; pdb.set_trace()
 
 
 # OLD IMPLEMENTATION #################################################################################################

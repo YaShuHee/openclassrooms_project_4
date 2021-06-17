@@ -12,7 +12,7 @@ from typing import List
 
 
 class Player:
-    id_ = 0
+    uid = 0
     """ The model used to stock players information. """
     def __init__(
             self,
@@ -21,7 +21,7 @@ class Player:
             birth_date: date,
             gender: str,
             rank: int,
-            id_=None,
+            uid=None,
     ):
         """ The Player class initiator. """
         self.first_name = first_name
@@ -32,8 +32,11 @@ class Player:
         self.gender = gender
         self.rank = rank
         self.score = 0
-        self.id_ = Player.id_
-        Player.id_ += 1
+        if uid is not None:
+            self.uid = uid
+        else:
+            self.uid = Player.uid
+        Player.uid += 1
 
     def serialized(self):
         """ Return a serialized version of the object. """

@@ -116,6 +116,20 @@ class TournamentView(View):
         """ A method to get a match result. """
         return self.enter_information("Gagnant du match ('1' pour J1, '2' pour J2 ou '0' en cas de match nul) : ")
 
+    @staticmethod
+    def list_tournaments(tournaments, show_index: bool = False):
+        """ A method to display a list of tournaments. """
+        if show_index:
+            index = 1
+            for tournament in tournaments:
+                print(f" {index} - {tournament.name}, {tournament.place} "
+                      f"({tournament.beginning_date} - {tournament.ending_date})")
+                index += 1
+        else:
+            for tournament in tournaments:
+                print(f"{tournament.name}, {tournament.place} "
+                      f"({tournament.beginning_date} - {tournament.ending_date})")
+
 
 # execution ----------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
