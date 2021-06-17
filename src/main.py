@@ -2,19 +2,14 @@
 # coding: utf-8
 
 
+# imports ------------------------------------------------------------------------------------------------------------
 # python standard library imports
-
 # outside libraries imports
-from tinydb import TinyDB
-
 # local imports
 from controllers import MainController
 
 
+# execution ----------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    db = TinyDB("db.json")
-    controller = MainController(db)
-
-    running = True
-    while running:
-        running = controller.run()
+    controller = MainController()
+    controller.run()

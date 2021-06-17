@@ -2,13 +2,15 @@
 # coding: utf-8
 
 
+# imports ------------------------------------------------------------------------------------------------------------
 # python standard library imports
 import os
-# outside libraries imports
 
+# outside libraries imports
 # local imports
 
 
+# views classes ------------------------------------------------------------------------------------------------------
 class View:
     """ A parent for Views classes. """
     @staticmethod
@@ -22,7 +24,7 @@ class View:
         return input(message + "\n>>> ")
 
     @staticmethod
-    def show_message(message: str):
+    def display_message(message: str):
         """ A method to display a message/information to the user. """
         print(message)
 
@@ -62,12 +64,12 @@ class TournamentView(View):
 
     def enter_beginning_date(self):
         """ A method to get the tournament beginning date. """
-        return self.enter_information("Date de début du tournoi :")
+        return self.enter_information("Date de début du tournoi (format jj/mm/aaaa) :")
 
     def enter_ending_date(self):
         """ A method to get the tournament ending date. """
         return self.enter_information(
-            "Date de fin du tournoi"
+            "Date de fin du tournoi "
             "(laisser vide si le tournoi se déroule seulement sur un jour) : "
         )
 
@@ -78,6 +80,10 @@ class TournamentView(View):
     def enter_number_of_rounds(self):
         """ A method to get the tournament number of rounds. """
         return self.enter_information("Nombre de round (4 par défaut) : ")
+
+    def enter_number_of_players(self):
+        """ A method to get the tournament number of players. """
+        return self.enter_information("Nombre de round (8 par défaut) : ")
 
     def enter_description(self):
         """ A method to get the tournament description. """
@@ -99,5 +105,6 @@ class TournamentView(View):
         return self.enter_information("Gagnant du match ('1' pour J1, '2' pour J2 ou '0' en cas de match nul) : ")
 
 
+# execution ----------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
     pass

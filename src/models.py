@@ -129,8 +129,8 @@ class Tournament:
             description: str,
             number_of_rounds: int = 4,
             number_of_players: int = 8,
-            ending_date: date = None,
             players=[],
+            ending_date: date = None,
             rounds=[],
     ):
         """ The tournament initiator. """
@@ -139,14 +139,15 @@ class Tournament:
         self.beginning_date = beginning_date
         self.time_control = time_control
         self.description = description
+        self.number_of_rounds = number_of_rounds
+        self.number_of_players = number_of_players
+        self.active_round = 0
+        # if loading saved object
         if rounds:
             self.rounds = [Round(**kwargs) for kwargs in rounds]
         else:
             self.rounds = []
-        self.active_round = 0
-        self.number_of_rounds = number_of_rounds
         self.players = players
-        self.number_of_players = number_of_players
         if ending_date is None:
             self.ending_date = beginning_date
         else:
@@ -174,5 +175,6 @@ class Tournament:
         }
 
 
+# execution ----------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
     pass
