@@ -370,19 +370,14 @@ class Loader:
 
     def save_players(self):
         """ Saves the self.players list in a .JSON file after serializing objects. """
-        print("Dans save_players:", id(self.players))
         self.db.table("players").truncate()
-        success = self.db.table("players").insert_multiple([self.serialized_player(player) for player in self.players])
-        print("VRAIE SAUVEGARDE DES PLAYERS :")
-        print(success)
+        self.db.table("players").insert_multiple([self.serialized_player(player) for player in self.players])
 
     def save_tournaments(self):
         """ Saves the self.tournaments list in a .JSON file after serializing objects. """
         self.db.table("tournaments").truncate()
-        success = self.db.table("tournaments").insert_multiple([self.serialized_tournament(tournament)
+        self.db.table("tournaments").insert_multiple([self.serialized_tournament(tournament)
                                                       for tournament in self.tournaments])
-        print("VRAIE SAUVEGARDE DES TOURNOIS :")
-        print(success)
 
     def load_players(self):
         """ Unserialize and reinstanciate saved Players objects from previous sessions.
@@ -391,7 +386,6 @@ class Loader:
         Player.uid = 0
         for player in self.db.table("players").all():
             self.players.append(self.unserialized_player(player))
-        print("Dans load_players:", id(self.players))
 
     def load_tournaments(self):
         """ Unserialize and reinstanciate saved Tournaments objects from previous sessions.
@@ -405,7 +399,6 @@ class MainController:
     def __init__(self):
         # attributes
         self.players = []
-        print("Dans MainController.__init__:", id(self.players))
         self.tournaments = []
         # views initialisation
         self.view = View()
@@ -859,7 +852,7 @@ class OldMainController:
                 new_rank = self.controller.get_player_rank()
             self.players[int(player_range) - 1].rank = new_rank
         else:
-            print("Vous devez d'abord ajouter des joueurs.")
+            self.tournament_view.show_message("Vous devez d'abord ajouter des joueurs.")
 
     def reports(self):
         """ A method to execute the reports. """
