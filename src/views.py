@@ -24,9 +24,9 @@ class View:
         return input(message + "\n>>> ")
 
     @staticmethod
-    def display_message(message: str):
+    def display_message(message: str, **kwargs):
         """ A method to display a message/information to the user. """
-        print(message)
+        print(message, **kwargs)
 
 
 class PlayerView(View):
@@ -91,11 +91,11 @@ class TournamentView(View):
 
     def enter_number_of_rounds(self):
         """ A method to get the tournament number of rounds. """
-        return self.enter_information("Nombre de round (4 par défaut) : ")
+        return self.enter_information("Nombre de rounds (4 par défaut) : ")
 
     def enter_number_of_players(self):
         """ A method to get the tournament number of players. """
-        return self.enter_information("Nombre de round (8 par défaut) : ")
+        return self.enter_information("Nombre de joueurs (8 par défaut) : ")
 
     def enter_description(self):
         """ A method to get the tournament description. """
@@ -105,30 +105,33 @@ class TournamentView(View):
         """ A method to get a tournament round name. """
         return self.enter_information("\nNom du nouveau round : ")
 
-    def show_match(self, match):
-        """ A method to display a match. """
-        counter = 0
-        for pair in match:
-            print(f"Joueur {counter+1} : {pair[0]}")
-            counter += 1
-
     def enter_match_result(self):
         """ A method to get a match result. """
         return self.enter_information("Gagnant du match ('1' pour J1, '2' pour J2 ou '0' en cas de match nul) : ")
 
-    @staticmethod
-    def list_tournaments(tournaments, show_index: bool = False):
+    def list_tournaments(self, tournaments, show_index: bool = False):
         """ A method to display a list of tournaments. """
         if show_index:
             index = 1
             for tournament in tournaments:
-                print(f" {index} - {tournament.name}, {tournament.place} "
-                      f"({tournament.beginning_date} - {tournament.ending_date})")
+                self.display_message(f" {index} - {tournament.name}, {tournament.place} "
+                                     f"({tournament.beginning_date} - {tournament.ending_date})")
                 index += 1
         else:
             for tournament in tournaments:
-                print(f"{tournament.name}, {tournament.place} "
-                      f"({tournament.beginning_date} - {tournament.ending_date})")
+                self.display_message(f"{tournament.name}, {tournament.place} "
+                                     f"({tournament.beginning_date} - {tournament.ending_date})")
+
+    def list_rounds(self, tournament):
+        for round_ in tournament.rounds:
+            self.display_message(round_.__repr__())
+
+    def list_matches(self, tournament):
+        for round_ in tournament.rounds:
+            counter = 0
+            for match in round_.matches:
+                self.display_message(f"{match.p1} ({match.s1}) - ({match.s2}) {match.p2}",
+                                     end="\n" * (counter % 3 == 0))
 
 
 # execution ----------------------------------------------------------------------------------------------------------

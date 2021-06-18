@@ -53,8 +53,8 @@ class Match(tuple):
 
     def __repr__(self):
         """ __repr__ overloading. """
-        return f"< {self.p1.first_name} {self.p1.last_name} : {self.s1}pt"\
-               f" ---<VS>--- {self.p2.first_name} {self.p2.last_name} : {self.s2}pt >"
+        return f"< {self.p1.first_name} {self.p1.last_name} : {self.s1}pt\t"\
+               f"---<VS>---\t{self.p2.first_name} {self.p2.last_name} : {self.s2}pt >"
 
     @property
     def p1(self):
@@ -64,12 +64,12 @@ class Match(tuple):
     @property
     def p2(self):
         """ Return the player 2 instance. """
-        return self[0][1]
+        return self[1][0]
 
     @property
     def s1(self):
         """ Return the player 1 score. """
-        return self[1][0]
+        return self[0][1]
 
     @property
     def s2(self):
@@ -135,10 +135,7 @@ class Tournament:
         self.number_of_players = number_of_players
         self.active_round = 0
         # if loading saved object
-        if rounds:
-            self.rounds = [Round(**kwargs) for kwargs in rounds]
-        else:
-            self.rounds = []
+        self.rounds = rounds
         self.players = players
         if ending_date is None:
             self.ending_date = beginning_date
