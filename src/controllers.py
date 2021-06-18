@@ -218,6 +218,7 @@ class TournamentRunner:
         """ The class initiator. """
         self.view = view
         self.tournament = tournament
+        self.tournament.players = []
         self.player_creator = player_creator
         self.known_players = known_players
 
