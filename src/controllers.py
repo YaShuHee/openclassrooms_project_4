@@ -598,15 +598,19 @@ class MainController:
             "Liste des joueurs, triés par classement :"
             self.player_view.list_players(sorted(self.players, key=lambda p: p.rank))
         elif action == "3":
-            self.player_view.list_players(sorted(self.select_tournament().players, key=lambda p: p.first_name))
+            if self.tournaments:
+                self.player_view.list_players(sorted(self.select_tournament().players, key=lambda p: p.first_name))
         elif action == "4":
-            self.player_view.list_players(sorted(self.select_tournament().players, key=lambda p: p.rank))
+            if self.tournaments:
+                self.player_view.list_players(sorted(self.select_tournament().players, key=lambda p: p.rank))
         elif action == "5":
             self.tournament_view.list_tournaments(self.tournaments)
         elif action == "6":
-            self.tournament_view.list_rounds(self.select_tournament())
+            if self.tournaments:
+                self.tournament_view.list_rounds(self.select_tournament())
         elif action == "7":
-            self.tournament_view.list_matches(self.select_tournament())
+            if self.tournaments:
+                self.tournament_view.list_matches(self.select_tournament())
 
 
 # execution ----------------------------------------------------------------------------------------------------------
