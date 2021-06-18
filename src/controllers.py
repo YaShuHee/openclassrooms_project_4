@@ -282,9 +282,8 @@ class TournamentRunner:
         # make a cumulative sum of scores for this tournament
         for round_ in self.tournament.rounds:
             for match in round_.matches:
-                for pair in match:
-                    match.p1.score += match.s1
-                    match.p2.score += match.s2
+                match.p1.score += match.s1
+                match.p2.score += match.s2
         # display scores
         if active_round != 0:
             message = f"Scores après {self.tournament.rounds[active_round - 1].name}"
