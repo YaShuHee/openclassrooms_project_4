@@ -466,16 +466,16 @@ class Loader:
 
     def load_players(self):
         """ Unserialize and reinstanciate saved Players objects from previous sessions.
-        /!\ Should not create any player or tournament, by hand  before the call of this method.
-        /!\ Must be called before self.load_tournaments. """
+        /!\\ Should not create any player or tournament, by hand  before the call of this method.
+        /!\\ Must be called before self.load_tournaments. """
         Player.uid = 0
         for player in self.db.table("players").all():
             self.players.append(self.unserialized_player(player))
 
     def load_tournaments(self):
         """ Unserialize and reinstanciate saved Tournaments objects from previous sessions.
-        /!\ Should not create any player or tournament, by hand  before the call of this method.
-        /!\ Must be called after self.load_players, because it uses Player.uid to reference Match objects. """
+        /!\\ Should not create any player or tournament, by hand  before the call of this method.
+        /!\\ Must be called after self.load_players, because it uses Player.uid to reference Match objects. """
         for tournament in self.db.table("tournaments").all():
             self.tournaments.append(self.unserialized_tournament(tournament))
 
@@ -557,7 +557,7 @@ class MainController:
 
     def select_player(self):
         """ This method let the user chose a player on which to do actions.
-        /!\ This method must not be called when self.players is empty. """
+        /!\\ This method must not be called when self.players is empty. """
         number_of_players = len(self.players)
         player_range = ""
         while not(player_range.isdecimal() and player_range != "0" and int(player_range) <= number_of_players):
@@ -567,7 +567,7 @@ class MainController:
 
     def select_tournament(self):
         """ This method let the user chose a tournament on which to do actions.
-        /!\ This method must not be called when self.tournaments is empty. """
+        /!\\ This method must not be called when self.tournaments is empty. """
         number_of_tournaments = len(self.tournaments)
         tournament_range = ""
         while not(tournament_range.isdecimal() and tournament_range != "0"
